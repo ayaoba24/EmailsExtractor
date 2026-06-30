@@ -1,6 +1,9 @@
 Email Extractor
+
 README & Code Documentation
+
 Purpose
+
 The Email Extractor is a Go programme that scans a block of text and pulls out every valid email address it finds, ignoring surrounding punctuation, sentences, and unrelated words. It is built entirely with Gos standard strings package — no regular expressions are used.
 
 Where It Can Be Used
