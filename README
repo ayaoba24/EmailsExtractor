@@ -1,0 +1,134 @@
+Email Extractor
+README & Code Documentation
+Purpose
+The Email Extractor is a Go programme that scans a block of text and pulls out every valid email address it finds, ignoring surrounding punctuation, sentences, and unrelated words. It is built entirely with Gos standard strings package — no regular expressions are used.
+
+Where It Can Be Used
+• Contact form scrapers — pull emails out of pasted text or documents
+• Data cleaning pipelines — extract emails from messy datasets or logs
+• Email marketing tools — gather addresses from customer feedback or support tickets
+• Spam/security filters — identify and flag email addresses in raw text
+• Educational projects — demonstrate string parsing and validation in Go
+
+Programming Language
+Language: Go (Golang)
+• Version: Go 1.18+
+• Packages used: fmt, strings
+• No external dependencies and no regexp required
+ Extraction Rules
+Condition
+Result
+Word contains no @ symbol
+Skipped
+Word has more than one @ symbol
+Skipped (invalid)
+Nothing before the @ symbol
+Skipped (invalid)
+No dot in the domain part after @
+Skipped (invalid)
+Exactly one @, valid local part, dot in domain
+Extracted as email
+
+
+Full Code
+package main
+
+import (
+    "fmt"
+    "strings"
+)
+
+func extractEmails(text string) []string {
+    var emails []string
+    words := strings.Fields(text)
+
+    for _, word := range words {
+        word = strings.Trim(word, ".,!?;:<>\"'()")
+
+        if strings.Contains(word, "@") {
+            parts := strings.Split(word, "@")
+
+            if len(parts) == 2 && parts[0] != "" && strings.Contains(parts[1], ".") {
+                emails = append(emails, word)
+            }
+        }
+    }
+    return emails
+}
+
+func main() {
+    text := "Contact us at admin@test.com or support@gmail.com."
+    emails := extractEmails(text)
+    for _, e := range emails {
+        fmt.Println(e)
+    }
+}
+
+Line-by-Line Explanation
+
+Package & Imports
+package main
+Declares this file as the entry point of the Go program. Every executable Go program must have package main.
+
+import ( "fmt"  "strings" )
+Imports two standard library packages:
+• fmt — used to print output to the terminal
+• strings — provides functions for splitting, trimming, and searching text
+
+Function: extractEmails
+func extractEmails(text string) []string {
+Defines a function named extractEmails that takes the full block of text as input and returns a slice of strings — the list of extracted emails.
+
+var emails []string
+Creates an empty slice to collect every valid email address found in the text.
+
+words := strings.Fields(text)
+Splits the text into individual words wherever whitespace occurs. For example, the sentence becomes a slice like ["Contact", "us", "at", "admin@test.com", "or", "support@gmail.com."].
+
+for _, word := range words {
+Loops through every word in the slice, one at a time. The underscore discards the index since only the word itself is needed.
+
+word = strings.Trim(word, ".,!?;:<>\"'()")
+Removes any of the listed punctuation characters, but only from the start and end of the word — never the middle. This strips a trailing period off something like support@gmail.com. so it becomes support@gmail.com.
+
+if strings.Contains(word, "@") {
+Checks if the current word contains an @ symbol at all. This is a fast first filter — ordinary words like 'Contact' or 'us' are skipped immediately since they have no @.
+
+parts := strings.Split(word, "@")
+Splits the word wherever an @ appears. For 'admin@test.com' this produces ["admin", "test.com"] — the local part and the domain part separated.
+
+if len(parts) == 2 && parts[0] != "" && strings.Contains(parts[1], ".") {
+Three conditions must all be true for the word to count as a valid email:
+• len(parts) == 2 — there is exactly one @ symbol, not zero and not more than one
+• parts[0] != "" — something exists before the @ (the local part is not empty)
+• strings.Contains(parts[1], ".") — the domain part after @ contains a dot, like .com or .org
+
+emails = append(emails, word)
+Only runs if all three validation conditions passed. Adds the cleaned word to the emails slice as a confirmed valid email address.
+
+return emails
+After the loop finishes checking every word, the function returns the completed slice of extracted emails.
+
+main() Function
+text := "Contact us at admin@test.com or support@gmail.com."
+emails := extractEmails(text)
+for _, e := range emails { fmt.Println(e) }
+The main() function is the entry point of the program. It defines a sample text, calls extractEmails on it, and prints each extracted email on its own line.
+
+Sample Output
+Input Text
+Extracted Emails
+Contact us at admin@test.com or support@gmail.com.
+admin@test.com
+
+
+support@gmail.com
+
+
+How to Run
+• Save the code in a file called main.go
+• Open your terminal in the same folder
+go run main.go
+The extracted email addresses will print to your terminal, one per line.
+
+— End of README —
